@@ -1,0 +1,25 @@
+/* Move only the new row's painted surface, without animating height/margins
+   or keeping compositor layers allocated after the entrance finishes. */
+@keyframes ember-tweet-enter {
+    from { transform: translateY(-6px); opacity: 0.35; }
+    to { transform: translateY(0); opacity: 1; }
+}
+@keyframes ember-tweet-arrival {
+    0%, 25% { background-color: #3a3022; }
+    to { background-color: var(--ember-panel); }
+}
+@keyframes ember-header-arrival {
+    0% { filter: brightness(1); }
+    20% { filter: brightness(1.5); }
+    100% { filter: brightness(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+    html.dark .column .stream-item.ember-arriving {
+        animation:
+            ember-tweet-enter 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+            ember-tweet-arrival 1800ms ease-out;
+    }
+    html.dark .app-columns > .column .column-header.ember-arrival-pulse::before {
+        animation: ember-header-arrival 900ms ease-out;
+    }
+}

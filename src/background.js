@@ -50,6 +50,12 @@ const isFirefox = typeof browser !== "undefined";
 // Store the URL of the tab that initiated the request.
 let urls = {};
 
+// The background page outlives individual tabs. Release their URL records when
+// they close instead of retaining every tab visited during the browser session.
+chrome.tabs.onRemoved.addListener(tabId => {
+    delete urls[tabId];
+});
+
 const flushCache = chrome.webRequest.handlerBehaviorChanged;
 
 chrome.webNavigation.onCommitted.addListener(

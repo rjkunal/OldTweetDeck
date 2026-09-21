@@ -1,0 +1,199 @@
+/* Ember: local dark-theme overrides. Keep after bundle.css, including updates.
+   Density is scoped to timeline tweets; compose and detail views keep their space. */
+/* Local Latin variable font for all Ember columns. Other scripts use
+   the system fallback. Font URLs are resolved by the extension's asset loader. */
+@font-face {
+    font-family: 'Ember Plex Sans';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("ember-plex-sans-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+html.dark .app-columns > .column {
+    font-family: 'Ember Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+html.dark {
+    --ember-bg: #1c1917;
+    --ember-panel: #211e1b;
+    --ember-header: #28231f;
+    --ember-line: #3b342d;
+    --ember-text: #eee8df;
+    --ember-muted: #b7aaa0;
+    --ember-accent: #e9b66f;
+    color: var(--ember-text);
+    background: var(--ember-bg);
+}
+html.dark body,
+html.dark .application,
+html.dark .app-content,
+html.dark .app-columns-container {
+    background-color: var(--ember-bg);
+    color: var(--ember-text);
+}
+html.dark .app-header,
+html.dark .app-header-inner,
+html.dark .app-title,
+html.dark .app-navigator {
+    background-color: #191613;
+}
+html.dark .app-nav-link,
+html.dark .app-nav-tab,
+html.dark .app-header .icon-home,
+html.dark .column .tweet-text a,
+html.dark .column .js-show-this-thread,
+html.dark .column-settings-link {
+    color: var(--ember-accent);
+}
+html.dark .app-nav-link:hover,
+html.dark .app-nav-tab:hover { color: #ffdbab; }
+html.dark .app-nav-tab.is-selected { background-color: var(--ember-header); }
+html.dark .app-nav-tab.is-selected .app-nav-tab-text { color: var(--ember-text); }
+html.dark .app-header .tweet-button {
+    background: var(--ember-accent);
+    border-color: var(--ember-accent);
+    color: #21190e;
+}
+html.dark .app-columns { padding-left: 5px; }
+html.dark .app-columns > .column {
+    --ember-column: #e9b66f;
+    margin-right: 5px;
+    background: var(--ember-panel);
+}
+html.dark .app-columns > .column:nth-child(4n + 2) { --ember-column: #63bdb3; }
+html.dark .app-columns > .column:nth-child(4n + 3) { --ember-column: #9c9ade; }
+html.dark .app-columns > .column:nth-child(4n + 4) { --ember-column: #d58e87; }
+html.dark .column.is-focused { box-shadow: inset 0 0 0 1px var(--ember-column, var(--ember-accent)); }
+html.dark .column-header,
+html.dark .column-header-temp {
+    background: var(--ember-header);
+    color: var(--ember-text);
+    border-bottom-color: var(--ember-line);
+}
+/* Overlay the accent rather than changing header height: TweetDeck calculates
+   scroller offsets and options-panel positions from the existing header. */
+html.dark .app-columns > .column .column-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--ember-column);
+    z-index: 1;
+    pointer-events: none;
+}
+html.dark .column-title,
+html.dark .column-title-container,
+html.dark .column-title-back { color: var(--ember-text); }
+html.dark .column-header .column-type-icon { color: var(--ember-muted); }
+html.dark .column-background-fill,
+html.dark .column-panel,
+html.dark .column-scroller,
+html.dark .stream-item,
+html.dark .search-results-container .stream-item {
+    background-color: var(--ember-panel);
+    border-color: var(--ember-line);
+    color: var(--ember-text);
+}
+/* Keep rows steady under the pointer; selection still has a visible cue. */
+html.dark .column .is-selected-tweet { background-color: #2b251f; }
+html.dark .column .txt-mute,
+html.dark .column .tweet-timestamp a { color: var(--ember-muted); }
+html.dark .column .fullname { color: var(--ember-text); }
+html.dark .column .item-box { padding: 6px 9px; }
+html.dark .column .tweet:not(.tweet-detail) {
+    padding-left: 36px;
+    line-height: 1.3;
+}
+html.dark .column .tweet:not(.tweet-detail) > .tweet-header .tweet-img {
+    width: 28px;
+    margin-left: -36px;
+}
+html.dark .column .tweet:not(.tweet-detail) > .tweet-header .tweet-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+html.dark .column .tweet:not(.tweet-detail) > .tweet-context { margin-left: -36px; }
+html.dark .column .tweet:not(.tweet-detail) > .tweet-context .item-img { width: 28px; }
+html.dark .column .tweet:not(.tweet-detail) > .tweet-header { min-width: 0; }
+html.dark .column .tweet:not(.tweet-detail) > .tweet-header .account-link { min-width: 0; }
+html.dark .column .tweet:not(.tweet-detail) .tweet-footer { margin-top: 3px; }
+html.dark .column .tweet-action { min-height: 20px; color: var(--ember-muted); }
+html.dark .column .tweet-action:hover,
+html.dark .column .tweet-action:focus { color: var(--ember-accent); }
+/* Keep liked/retweeted states recognizable. */
+html.dark .column .is-retweet .icon-retweet-toggle { color: #64c995; }
+html.dark .column .is-favorite .icon-favorite-toggle { color: #ec8795; }
+html.dark .column .tweet:not(.tweet-detail) .media-size-medium,
+html.dark .column .tweet:not(.tweet-detail) .media-size-large,
+html.dark .column .tweet:not(.tweet-detail) .media-size-large-height {
+    height: 110px;
+    border-radius: 4px;
+}
+html.dark .column .tweet:not(.tweet-detail) .media-size-small {
+    height: 76px;
+    border-radius: 4px;
+}
+html.dark .column .quoted-tweet,
+html.dark .column .quoted-tweet:hover {
+    border-color: var(--ember-line);
+    border-radius: 4px;
+    background-color: transparent;
+}
+html.dark .column .gap-chirp {
+    background-color: var(--ember-header);
+    color: var(--ember-accent);
+}
+html.dark .column-scroller {
+    scrollbar-color: #64564a var(--ember-panel);
+    scrollbar-width: thin;
+}
+html.dark .column a:focus-visible,
+html.dark .app-header a:focus-visible,
+html.dark .column button:focus-visible {
+    outline: 2px solid var(--ember-accent);
+    outline-offset: 2px;
+}
+html.dark .column-options,
+html.dark .column .accordion,
+html.dark .column .accordion-header,
+html.dark .column .accordion-panel {
+    background-color: var(--ember-header);
+    border-color: var(--ember-line);
+    color: var(--ember-text);
+}
+html.dark .column .accordion-header:hover { background-color: #332c25; }
+
+/* Column names carry the identity; omit positional numbers and owner handles.
+   Scope attribution hiding to column chrome, never tweet authors or DM names. */
+html.dark .column-header .column-number,
+html.dark .column-header .column-title .attribution,
+html.dark .column-nav-link .attribution {
+    display: none;
+}
+html.dark .column-nav-link::after { content: none; }
+/* Keep column reordering discoverable, but make its grip less prominent. */
+html.dark .column-header .column-drag-handle { opacity: 0.3; }
+html.dark .column-header:hover .column-drag-handle,
+html.dark .column-header:focus-within .column-drag-handle { opacity: 0.8; }
+
+/* Finish the warm palette in the sidebar and nested tweet text. */
+html.dark .column-nav-item { background-color: #191613; }
+html.dark .column-nav-link { color: var(--ember-muted); }
+html.dark .column-nav-link.is-selected,
+html.dark .column-nav-link:hover,
+html.dark .column-nav-link:focus { color: var(--ember-accent); }
+html.dark .app-search-fake {
+    color: var(--ember-accent);
+    border-color: var(--ember-accent);
+}
+html.dark .app-search-input {
+    background-color: var(--ember-panel);
+    color: var(--ember-text);
+    border-color: var(--ember-line);
+}
+html.dark .column .quoted-tweet { color: var(--ember-muted); }
+html.dark .column .quoted-tweet .js-quoted-tweet-text a,
+html.dark .column .js-reply-info-container a { color: var(--ember-accent); }

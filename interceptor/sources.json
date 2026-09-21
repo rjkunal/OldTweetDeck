@@ -1,0 +1,16 @@
+[
+  "state.js",
+  "tweet-parser.js",
+  "request-utils.js",
+  "routes/timelines.js",
+  "routes/notifications.js",
+  "routes/tweet-actions.js",
+  "routes/collections.js",
+  "routes/accounts.js",
+  "routes/search.js",
+  "routes/tweet-details.js",
+  "routes/messages.js",
+  "routes/application.js",
+  "registry.js",
+  "xhr.js"
+]

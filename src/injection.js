@@ -27,183 +27,167 @@ window.postMessage('getotdtoken', '*');
 
 async function main() {
     let html = await fetch(chrome.runtime.getURL('/files/index.html')).then(r => r.text());
-    document.documentElement.innerHTML = html;
 
-    let [challenge_js, interception_js, vendor_js, bundle_js, bundle_css, twitter_text] =
-        await Promise.allSettled([
-            fetch(chrome.runtime.getURL("/src/challenge.js")).then(r => r.text()),
-            fetch(chrome.runtime.getURL("/src/interception.js")).then(r => r.text()),
-            fetch(chrome.runtime.getURL("/files/vendor.js")).then(r => r.text()),
-            fetch(chrome.runtime.getURL("/files/bundle.js")).then(r => r.text()),
-            fetch(chrome.runtime.getURL("/files/bundle.css")).then(r => r.text()),
-            fetch(chrome.runtime.getURL("/files/twitter-text.js")).then(r => r.text()),
-        ]);
-    if (!localStorage.getItem("OTDalwaysUseLocalFiles")) {
-        const [
-            remote_challenge_js_req,
-            remote_interception_js_req,
-            remote_vendor_js_req,
-            remote_bundle_js_req,
-            remote_bundle_css_req,
-            remote_twitter_text_req,
-        ] = await Promise.allSettled([
-            fetch("https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main/src/challenge.js"),
-            fetch("https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main/src/interception.js"),
-            fetch("https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main/files/vendor.js"),
-            fetch("https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main/files/bundle.js"),
-            fetch("https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main/files/bundle.css"),
-            fetch("https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main/files/twitter-text.js"),
-        ]);
-        
-        if(
-            (remote_challenge_js_req.value && remote_challenge_js_req.value.ok) ||
-            (remote_interception_js_req.value && remote_interception_js_req.value.ok) || 
-            (remote_vendor_js_req.value && remote_vendor_js_req.value.ok) ||
-            (remote_bundle_js_req.value && remote_bundle_js_req.value.ok) ||
-            (remote_bundle_css_req.value && remote_bundle_css_req.value.ok) ||
-            (remote_twitter_text_req.value && remote_twitter_text_req.value.ok)
-        ) {
-            const [
-                remote_challenge_js,
-                remote_interception_js,
-                remote_vendor_js,
-                remote_bundle_js,
-                remote_bundle_css,
-                remote_twitter_text,
-            ] = await Promise.allSettled([
-                remote_challenge_js_req.value.text(),
-                remote_interception_js_req.value.text(),
-                remote_vendor_js_req.value.text(),
-                remote_bundle_js_req.value.text(),
-                remote_bundle_css_req.value.text(),
-                remote_twitter_text_req.value.text(),
-            ]);
-
-            if (
-                remote_challenge_js_req.value &&
-                remote_challenge_js_req.value.ok &&
-                remote_challenge_js.status === "fulfilled" &&
-                remote_challenge_js.value.length > 30
-            ) {
-                challenge_js = remote_challenge_js;
-                console.log("Using remote challenge.js");
-            }
-
-            if (
-                remote_interception_js_req.value &&
-                remote_interception_js_req.value.ok &&
-                remote_interception_js.status === "fulfilled" &&
-                remote_interception_js.value.length > 30
-            ) {
-                interception_js = remote_interception_js;
-                console.log("Using remote interception.js");
-            }
-            if (
-                remote_vendor_js_req.value &&
-                remote_vendor_js_req.value.ok &&
-                remote_vendor_js.status === "fulfilled" &&
-                remote_vendor_js.value.length > 30
-            ) {
-                vendor_js = remote_vendor_js;
-                console.log("Using remote vendor.js");
-            }
-            if (
-                remote_bundle_js_req.value &&
-                remote_bundle_js_req.value.ok &&
-                remote_bundle_js.status === "fulfilled" &&
-                remote_bundle_js.value.length > 30
-            ) {
-                bundle_js = remote_bundle_js;
-                console.log("Using remote bundle.js");
-            }
-            if (
-                remote_bundle_css_req.value &&
-                remote_bundle_css_req.value.ok &&
-                remote_bundle_css.status === "fulfilled" &&
-                remote_bundle_css.value.length > 30
-            ) {
-                bundle_css = remote_bundle_css;
-                console.log("Using remote bundle.css");
-            }
-            if (
-                remote_twitter_text_req.value &&
-                remote_twitter_text_req.value.ok &&
-                remote_twitter_text.status === "fulfilled" &&
-                remote_twitter_text.value.length > 30
-            ) {
-                twitter_text = remote_twitter_text;
-                console.log("Using remote twitter-text.js");
-            }
-        }
-    }
-
-    let challenge_js_script = document.createElement("script");
-    challenge_js_script.innerHTML = challenge_js.value.replaceAll('SOLVER_URL', chrome.runtime.getURL("solver.html"));
-    document.head.appendChild(challenge_js_script);
-
-    let interception_js_script = document.createElement("script");
-    interception_js_script.innerHTML = interception_js.value;
-    document.head.appendChild(interception_js_script);
-
-    let bundle_css_style = document.createElement("style");
-    bundle_css_style.innerHTML = bundle_css.value;
-    document.head.appendChild(bundle_css_style);
-
-    let vendor_js_script = document.createElement("script");
-    vendor_js_script.innerHTML = vendor_js.value;
-    document.head.appendChild(vendor_js_script);
-
-    let bundle_js_script = document.createElement("script");
-    bundle_js_script.innerHTML = bundle_js.value;
-    document.head.appendChild(bundle_js_script);
-
-    let twitter_text_script = document.createElement("script");
-    twitter_text_script.innerHTML = twitter_text.value;
-    document.head.appendChild(twitter_text_script);
-
-    (async () => {
-        try {
-            const additionalScripts = await fetch("https://oldtd.org/api/scripts", {
-                headers: otdtoken ? {
-                    Authorization: `Bearer ${otdtoken}`
-                } : undefined
-            }).then(r => r.json());
-            for(let script of additionalScripts) {
-                let scriptSource = await fetch(`https://oldtd.org/api/scripts/${script}`, {
-                    headers: otdtoken ? {
-                        Authorization: `Bearer ${otdtoken}`
-                    } : undefined
-                }).then(r => r.text());
-                let scriptElement = document.createElement("script");
-                scriptElement.innerHTML = scriptSource;
-                document.head.appendChild(scriptElement);
-            }
-        } catch(e) {
-            console.error(e);
-        }
-    })();
-
-    let int = setTimeout(function() {
-        let badBody = document.querySelector('body:not(#injected-body)');
-        if (badBody) {
-            let badHead = document.querySelector('head:not(#injected-head)');
-            clearInterval(int);
-            if(badHead) badHead.remove();
-            badBody.remove(); 
-        }
-    }, 200);
-    setTimeout(() => clearInterval(int), 10000);
-
-    let injInt;
-    function injectAccount() {
-        if(!document.querySelector('a[data-title="Accounts"]')) return;
-        clearInterval(injInt);
-
-        let accountsBtn = document.querySelector('a[data-title="Accounts"]');
-        accountsBtn.addEventListener("click", function() {
-            console.log("setting account cookie");
-            chrome.runtime.sendMessage({ action: "setcookie" }); 
+    // At document_start Firefox may still be parsing X's original HTML. Wait
+    // before replacing it so late parser writes cannot interfere with TweetDeck's
+    // document or the dynamically generated stylesheet used by preview cards.
+    // Check after the fetch: DOMContentLoaded may already have fired by then.
+    if (isFirefox && document.readyState === "loading") {
+        await new Promise(resolve => {
+            document.addEventListener("DOMContentLoaded", resolve, { once: true });
         });
     }
-    setInterval(injectAccount, 1000);
-};
+
+    document.documentElement.innerHTML = html;
+
+    const useLocalFiles = !!localStorage.getItem("OTDalwaysUseLocalFiles");
+    // Fetch in parallel, then install in dependency order.
+    const assets = [
+        { path: "/src/challenge.js", tag: "script", transform: source =>
+            source.replaceAll('SOLVER_URL', chrome.runtime.getURL("solver.html")) },
+        { path: "/src/interception.js", tag: "script", transform: optimizeSeenIds },
+        { path: "/files/bundle.css", tag: "style" },
+        { path: "/files/ember.css", tag: "style", local: true, transform: source =>
+            source.replace(/url\("(ember-[a-z-]+\.woff2)"\)/g,
+                (_, file) => `url("${chrome.runtime.getURL(`/files/${file}`)}")`) },
+        { path: "/files/whole-columns.css", tag: "style", local: true },
+        { path: "/files/arrival-effects.css", tag: "style", local: true },
+        { path: "/files/vendor.js", tag: "script", transform: compactArticleCards },
+        { path: "/files/bundle.js", tag: "script" },
+        { path: "/files/twitter-text.js", tag: "script" },
+        { path: "/src/whole-columns.js", tag: "script", local: true },
+        { path: "/src/arrival-effects.js", tag: "script", local: true },
+    ];
+    const sources = await Promise.all(assets.map(asset => loadAsset(asset.path, asset.local || useLocalFiles)));
+    assets.forEach(({ tag, transform }, index) => {
+        const source = sources[index];
+        appendInlineAsset(tag, transform ? transform(source) : source);
+    });
+
+    loadAdditionalScripts();
+    setTimeout(removeOriginalDocument, 200);
+    installAccountHandler();
+}
+
+function appendInlineAsset(tag, source) {
+    const element = document.createElement(tag);
+    element.textContent = source;
+    document.head.appendChild(element);
+}
+
+async function loadAdditionalScripts() {
+    try {
+        const additionalScripts = await fetch("https://oldtd.org/api/scripts", {
+            headers: otdtoken ? { Authorization: `Bearer ${otdtoken}` } : undefined
+        }).then(response => response.json());
+        for (const script of additionalScripts) {
+            const source = await fetch(`https://oldtd.org/api/scripts/${script}`, {
+                headers: otdtoken ? { Authorization: `Bearer ${otdtoken}` } : undefined
+            }).then(response => response.text());
+            appendInlineAsset("script", source);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function removeOriginalDocument() {
+    const body = document.querySelector('body:not(#injected-body)');
+    if (!body) return;
+    document.querySelector('head:not(#injected-head)')?.remove();
+    body.remove();
+}
+
+function installAccountHandler() {
+    const timer = setInterval(() => {
+        const button = document.querySelector('a[data-title="Accounts"]');
+        if (!button) return;
+        clearInterval(timer);
+        button.addEventListener("click", () => {
+            chrome.runtime.sendMessage({ action: "setcookie" });
+        });
+    }, 1000);
+}
+
+// Prefer updates without first allocating another copy of every bundled asset.
+// Fall back independently: one failed download must not discard other updates.
+async function loadAsset(path, useLocalFiles) {
+    if (!useLocalFiles) {
+        try {
+            const response = await fetch(`https://raw.githubusercontent.com/dimdenGD/OldTweetDeck/main${path}`);
+            if (response.ok) {
+                const source = await response.text();
+                if (source.length > 30) return source;
+            }
+        } catch (error) {
+            console.warn(`Using bundled ${path}: update unavailable`, error);
+        }
+    }
+    const response = await fetch(chrome.runtime.getURL(path));
+    if (!response.ok) throw new Error(`Unable to load bundled ${path}: ${response.status}`);
+    return response.text();
+}
+
+function createBoundedSeenIds() {
+    // Keep 45,000–50,000 unique IDs per cache. Evict in batches so finding the
+    // oldest entry does not repeatedly scan deleted slots in a long-lived Set.
+    return new class extends Set {
+        add(id) {
+            super.add(id);
+            if (this.size > 50000) {
+                const oldest = this.values();
+                for (let i = 0; i < 5000; i++) this.delete(oldest.next().value);
+            }
+            return this;
+        }
+    }();
+}
+
+// Apply to bundled AND downloaded interception code. Only transform the known
+// array operations; if upstream changes their use, leave its source untouched.
+function optimizeSeenIds(source) {
+    // Inline the self-contained factory so the page needs no loader globals.
+    const cache = `(${createBoundedSeenIds.toString()})()`;
+    const replacements = [
+        ["let seenNotifications = [];", `let seenNotifications = ${cache};`, 1],
+        ["seenNotifications.includes(", "seenNotifications.has(", 3],
+        ["seenNotifications.push(", "seenNotifications.add(", 3],
+        ["seenHomeTweets[xhr.storage.user_id] = [];", `seenHomeTweets[xhr.storage.user_id] = ${cache};`, 2],
+        ["seenHomeTweets[xhr.storage.user_id].includes(", "seenHomeTweets[xhr.storage.user_id].has(", 2],
+        ["seenHomeTweets[xhr.storage.user_id].push(", "seenHomeTweets[xhr.storage.user_id].add(", 2],
+    ];
+    // Include all references, so new array-dependent uses cannot slip through.
+    if ((source.match(/\bseenNotifications\b/g) || []).length !== 7 ||
+        (source.match(/\bseenHomeTweets\b/g) || []).length !== 9 ||
+        replacements.some(([from, , count]) => source.split(from).length - 1 !== count)) {
+        console.warn("Skipping seen-ID optimization: interception source has changed");
+        return source;
+    }
+    for (const [from, to] of replacements) source = source.replaceAll(from, to);
+    return source;
+}
+
+// Reuse TweetDeck's native small-card renderer for article previews. Guard this
+// narrow conversion so an upstream vendor change falls back to its own layout.
+function compactArticleCards(source) {
+    const start = 'e.convertSummaryLargeImageCard = function(t, e, n) {';
+    const end = '\n\t}, function(t, e, n) {';
+    const offset = source.indexOf(start);
+    const boundary = source.indexOf(end, offset);
+    const size = 'size: l ? "large" : "small"';
+    const ratio = 'aspect_ratio: l ? 1.91 : 1';
+    if (offset < 0 || boundary < 0 || source.split(start).length !== 2) {
+        console.warn('Skipping compact article cards: vendor source has changed');
+        return source;
+    }
+    const original = source.slice(offset, boundary);
+    if (original.split(size).length !== 2 || original.split(ratio).length !== 2) {
+        console.warn('Skipping compact article cards: converter has changed');
+        return source;
+    }
+    const updated = original
+        .replace(start, start + '\n            const emberCompact = document.documentElement.classList.contains("dark");')
+        .replace(size, 'size: !emberCompact && l ? "large" : "small"')
+        .replace(ratio, 'aspect_ratio: !emberCompact && l ? 1.91 : 1');
+    return source.slice(0, offset) + updated + source.slice(boundary);
+}

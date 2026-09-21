@@ -1,0 +1,17 @@
+/* clip, unlike hidden, also prevents keyboard/app-driven horizontal scrolling.
+   The individual columns retain their own vertical scrolling. */
+.app-columns-container[data-otd-whole-columns] {
+    overflow: clip !important;
+    bottom: 0 !important;
+}
+[data-otd-whole-columns] > .app-columns > .column:first-child {
+    min-width: 0 !important;
+    max-width: var(--otd-first-column-width) !important;
+}
+/* Keep geometry and DOM state intact; display:none would confuse TweetDeck's
+   column measurements and can reset internal scroll positions. */
+[data-otd-overflow-column],
+[data-otd-overflow-column] * {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}

@@ -4,7 +4,9 @@
   "description": "Returns old TweetDeck!",
   "main": "pack.js",
   "scripts": {
-    "build": "node pack.js"
+    "build": "node scripts/build-interceptor.cjs",
+    "check": "node scripts/build-interceptor.cjs --check",
+    "test": "npm run check && node --test tests/*.test.cjs"
   },
   "repository": {
     "type": "git",
@@ -25,5 +27,6 @@
   "homepage": "https://github.com/dimdenGD/OldTweetDeck#readme",
   "dependencies": {
     "adm-zip": "^0.5.10"
-  }
+  },
+  "private": true
 }
