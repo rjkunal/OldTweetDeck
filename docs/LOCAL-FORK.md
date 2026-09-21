@@ -11,3 +11,9 @@ Based on upstream OldTweetDeck v4.4.0 (c0d3c67). Existing Firefox customizations
 - artifacts/ is deliberately ignored: ZIPs, previews, and profile analysis are local outputs.
 
 See PERFORMANCE-FIXES.md for the customization details and verification limits. The upstream README and license are retained.
+
+## Packaging and releases
+
+Run npm run package with Node.js 22+ and zip/unzip available. It rebuilds the interceptor, runs tests, validates a fresh runtime-only ZIP and replaces artifacts/OldTweetDeckFirefox-Ember.zip only after success. No npm dependencies are needed by this command.
+
+To release, bump manifest.json to a unique Firefox-compatible version, optionally add docs/releases/ember-vVERSION.md, commit, and push a matching ember-vVERSION tag. GitHub Actions builds and tests before publishing the ZIP as a release asset. Branch pushes and pull requests run the same build without publishing a release. The ZIP is unsigned.

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node scripts/build-interceptor.cjs",
     "check": "node scripts/build-interceptor.cjs --check",
-    "test": "npm run check && node --test tests/*.test.cjs"
+    "test": "npm run check && node --test tests/*.test.cjs",
+    "package": "node scripts/package-firefox.cjs"
   },
   "repository": {
     "type": "git",

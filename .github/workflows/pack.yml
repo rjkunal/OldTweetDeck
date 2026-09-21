@@ -1,43 +1,56 @@
-name: Pack Extension
+name: Build and release Ember Firefox
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ember-firefox]
+    tags: ['ember-v*']
   pull_request:
-    branches: [ "main" ] 
+    branches: [ember-firefox]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Source Tree
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-
-      - name: Install ZIP
-        uses: montudor/action-zip@v1
-        
-      - name: Setup NPM packages
-        run: npm install
-
-      - name: Pack extension
-        run: npm run build
-
-      - name: Unzip extension
-        run: unzip -qq ./build/OldTweetDeckChrome.zip -d build/OldTweetDeckChrome; unzip -qq ./build/OldTweetDeckFirefox.zip -d build/OldTweetDeckFirefox
-        working-directory: ${{ github.workspace }}
-        
-      - name: Upload for Firefox
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          name: OldTweetDeckFirefox
-          path: ${{ github.workspace }}/build/OldTweetDeckFirefox
-      - name: Upload for Chromium
-        uses: actions/upload-artifact@v4
+          node-version: '22'
+      - name: Build, test and package
+        run: npm run package
+      - name: Verify generated source is committed
+        run: git diff --exit-code -- src/interception.js
+      - uses: actions/upload-artifact@v4
         with:
-          name: OldTweetDeckChrome
-          path: ${{ github.workspace }}/build/OldTweetDeckChrome
+          name: OldTweetDeckFirefox-Ember
+          path: artifacts/OldTweetDeckFirefox-Ember.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/ember-v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: OldTweetDeckFirefox-Ember
+          path: artifacts
+      - name: Publish tagged release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          version=$(node -p "require('./manifest.json').version")
+          test "$TAG" = "ember-v$version"
+          notes=(--generate-notes)
+          if [[ -f "docs/releases/$TAG.md" ]]; then
+            notes=(--notes-file "docs/releases/$TAG.md")
+          fi
+          gh release create "$TAG" artifacts/OldTweetDeckFirefox-Ember.zip --verify-tag --title "Ember Firefox $version" "${notes[@]}"
